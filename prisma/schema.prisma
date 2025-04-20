@@ -1,0 +1,355 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("NEON_NEON_DATABASE_URL") // uses connection pooling
+  directUrl = env("NEON_DATABASE_URL_UNPOOLED") // uses a direct connection
+}
+
+model User {
+  id                String    @id @default(cuid())
+  name              String
+  email             String    @unique
+  emailVerified     DateTime?
+  image             String?
+  password          String?
+  role              String    @default("user") // user, admin, instructor
+  bio               String?   @db.Text
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  // Relations
+  enrollments       CourseEnrollment[]
+  forumPosts        ForumPost[]
+  comments          Comment[]
+  stakingPools      StakingPoolUser[]
+  miningRigs        MiningRigUser[]
+  notifications     Notification[]
+  achievements      UserAchievement[]
+  courseProgress    CourseProgress[]
+  searchHistory     SearchHistory[]
+}
+
+model Course {
+  id                String   @id @default(cuid())
+  title             String
+  description       String   @db.Text
+  category          String
+  level             String
+  duration          String
+  price             Float
+  isDemo            Boolean  @default(false)
+  instructor        String
+  imageUrl          String?
+  students          Int      @default(0)
+  rating            Float    @default(0)
+  featured          Boolean  @default(false)
+  published         Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  sections          CourseSection[]
+  enrollments       CourseEnrollment[]
+  materials         CourseMaterial[]
+  reviews           CourseReview[]
+  tags              CourseTag[]
+}
+
+model CourseSection {
+  id          String   @id @default(cuid())
+  title       String
+  description String?  @db.Text
+  order       Int
+  courseId    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons     Lesson[]
+}
+
+model Lesson {
+  id              String   @id @default(cuid())
+  title           String
+  content         String   @db.Text
+  videoUrl        String?
+  duration        Int      // in minutes
+  order           Int
+  courseSectionId String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // Relations
+  courseSection   CourseSection @relation(fields: [courseSectionId], references: [id], onDelete: Cascade)
+  progress        CourseProgress[]
+  materials       LessonMaterial[]
+}
+
+model CourseMaterial {
+  id          String   @id @default(cuid())
+  title       String
+  description String?  @db.Text
+  fileUrl     String
+  fileType    String
+  fileSize    Int
+  courseId    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+}
+
+model LessonMaterial {
+  id          String   @id @default(cuid())
+  title       String
+  description String?  @db.Text
+  fileUrl     String
+  fileType    String
+  fileSize    Int
+  lessonId    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  lesson      Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+}
+
+model CourseEnrollment {
+  id        String   @id @default(cuid())
+  userId    String
+  courseId  String
+  progress  Float    @default(0) // 0-100%
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, courseId])
+}
+
+model CourseProgress {
+  id        String   @id @default(cuid())
+  userId    String
+  lessonId  String
+  completed Boolean  @default(false)
+  lastAccessedAt DateTime @default(now())
+  
+  // Relations
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson    Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, lessonId])
+}
+
+model CourseReview {
+  id        String   @id @default(cuid())
+  userId    String
+  courseId  String
+  rating    Float
+  comment   String?  @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, courseId])
+}
+
+model CourseTag {
+  id        String   @id @default(cuid())
+  name      String
+  courseId  String
+  
+  // Relations
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  
+  @@unique([name, courseId])
+}
+
+model ForumPost {
+  id        String   @id @default(cuid())
+  title     String
+  content   String   @db.Text
+  userId    String
+  category  String
+  views     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comments  Comment[]
+  likes     Like[]
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String   @db.Text
+  userId    String
+  postId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+}
+
+model Like {
+  id        String   @id @default(cuid())
+  userId    String
+  postId    String
+  createdAt DateTime @default(now())
+  
+  // Relations
+  user      User      @relation(fields: [userId], references: [id])
+  post      ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, postId])
+}
+
+model StakingPool {
+  id              String   @id @default(cuid())
+  name            String
+  asset           String
+  maxParticipants Int
+  currentParticipants Int @default(0)
+  minStake        Float
+  maxStake        Float
+  apy             Float
+  lockPeriod      Int      // days
+  totalStaked     Float    @default(0)
+  tradesPerDay    Int
+  percentPerTrade Float
+  description     String?  @db.Text
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // Relations
+  users           StakingPoolUser[]
+}
+
+model StakingPoolUser {
+  id            String   @id @default(cuid())
+  userId        String
+  poolId        String
+  amount        Float
+  startDate     DateTime @default(now())
+  endDate       DateTime
+  active        Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Relations
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pool          StakingPool @relation(fields: [poolId], references: [id], onDelete: Cascade)
+}
+
+model MiningRig {
+  id               String   @id @default(cuid())
+  name             String
+  location         String
+  hashrate         Float
+  algorithm        String
+  dailyReward      Float
+  rentalFeeHourly  Float
+  rentalFeeDaily   Float
+  rentalFeeWeekly  Float
+  rentalFeeMonthly Float
+  availability     Int      // percentage
+  powerConsumption Int      // watts
+  imageUrl         String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  
+  // Relations
+  users            MiningRigUser[]
+}
+
+model MiningRigUser {
+  id            String   @id @default(cuid())
+  userId        String
+  rigId         String
+  contractStart DateTime @default(now())
+  contractEnd   DateTime
+  contractType  String   // hourly, daily, weekly, monthly
+  active        Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Relations
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rig           MiningRig @relation(fields: [rigId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, rigId, contractStart])
+}
+
+model Notification {
+  id          String   @id @default(cuid())
+  userId      String
+  title       String
+  message     String   @db.Text
+  type        String   // info, success, warning, error
+  read        Boolean  @default(false)
+  link        String?
+  createdAt   DateTime @default(now())
+  
+  // Relations
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Achievement {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String   @db.Text
+  imageUrl    String?
+  points      Int
+  createdAt   DateTime @default(now())
+  
+  // Relations
+  users       UserAchievement[]
+}
+
+model UserAchievement {
+  id            String   @id @default(cuid())
+  userId        String
+  achievementId String
+  awardedAt     DateTime @default(now())
+  
+  // Relations
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, achievementId])
+}
+
+model SearchHistory {
+  id        String   @id @default(cuid())
+  userId    String
+  query     String
+  createdAt DateTime @default(now())
+  
+  // Relations
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Analytics {
+  id            String   @id @default(cuid())
+  event         String
+  category      String
+  value         Int?
+  metadata      Json?
+  createdAt     DateTime @default(now())
+}
