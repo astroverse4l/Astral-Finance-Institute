@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AstroVerse API Documentation</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* General Styles */
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            color: #fff;
+            background: linear-gradient(to bottom, #000000, #ff0000, #004e92);
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, p {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        /* Animated Text */
+        .animated-text {
+            animation: fadeIn 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0.5;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* API Documentation Section */
+        .api-docs {
+            background: #111;
+            padding: 30px;
+            border-top: 2px solid #444;
+        }
+
+        .api-docs h2 {
+            font-size: 2rem;
+            color: #ff5555;
+            margin-bottom: 10px;
+        }
+
+        .api-docs p {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            margin: 10px 0;
+        }
+
+        .api-docs pre {
+            background: #222;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            color: #00ffcc;
+            margin: 10px 0;
+        }
+
+        .api-section {
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Section -->
+    <div class="header">
+        <h1 class="animated-text">AstroVerse API Documentation</h1>
+        <p>Integrate Web3, NFTs, and Gaming seamlessly into your projects.</p>
+    </div>
+
+    <!-- API Documentation Section -->
+    <div class="api-docs">
+        <div class="api-section">
+            <h2>Unity and Unreal Engine</h2>
+            <p>Integrate blockchain functionality into your games. Use our SDK for NFT-based assets and in-game economies.</p>
+            <pre>
+Features:
+- NFT-based in-game assets
+- Blockchain-backed game economies
+- Cross-platform compatibility
+            </pre>
+        </div>
+
+        <div class="api-section">
+            <h2>Solidity and Hardhat</h2>
+            <p>Deploy and test smart contracts with ease. Access prebuilt templates for ERC-20 and ERC-721 tokens.</p>
+            <pre>
+Features:
+- Smart contract deployment
+- Testing and debugging tools
+- Prebuilt templates for tokens
+            </pre>
+        </div>
+
+        <div class="api-section">
+            <h2>ethers.js and web3.js</h2>
+            <p>Interact with the Ethereum blockchain and smart contracts. Fetch real-time data and execute transactions.</p>
+            <pre>
+Features:
+- Blockchain interaction
+- Real-time data fetching
+- Transaction execution
+            </pre>
+        </div>
+
+        <div class="api-section">
+            <h2>Support for Other Frameworks</h2>
+            <p>Compatible with Moralis, Alchemy, and The Graph. Extend functionality with Chainlink oracles.</p>
+            <pre>
+Features:
+- Moralis for backend services
+- Alchemy for blockchain APIs
+- Chainlink for decentralized oracles
+            </pre>
+        </div>
+    </div>
+
+    <!-- Footer Section with API Details -->
+    <div class="footer">
+        <h2>AstroVerse API Details</h2>
+        <p>Our API provides the following endpoints:</p>
+        <pre>
+GET /api/v1/nfts
+- Description: Fetch a list of NFTs.
+- Request Format: None
+- Response: JSON array of NFT data.
+- Error Codes: 404 (Not Found), 500 (Server Error)
+
+POST /api/v1/transactions
+- Description: Submit a blockchain transaction.
+- Request Format: JSON { "from": "address", "to": "address", "amount": "value" }
+- Response: Transaction hash.
+- Error Codes: 400 (Bad Request), 500 (Server Error)
+
+GET /api/v1/prices
+- Description: Fetch real-time crypto prices.
+- Request Format: None
+- Response: JSON { "symbol": "price" }
+- Error Codes: 404 (Not Found), 500 (Server Error)
+        </pre>
+        <p>Our API supports multiple languages, including JavaScript, Python, and Java. Visit our <a href="/docs" style="color: #00ffcc;">documentation page</a> for code examples and SDKs.</p>
+    </div>
+</body>
+</html>
